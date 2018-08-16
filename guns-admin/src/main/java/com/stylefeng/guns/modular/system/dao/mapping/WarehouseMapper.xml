@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.WarehouseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.Warehouse">
+        <id column="id" property="id" />
+        <result column="potno" property="potno" />
+        <result column="workarea" property="workarea" />
+        <result column="workcode" property="workcode" />
+        <result column="onedate" property="onedate" />
+        <result column="onevalue" property="onevalue" />
+        <result column="twodate" property="twodate" />
+        <result column="twovalue" property="twovalue" />
+        <result column="yield" property="yield" />
+        <result column="efficiency" property="efficiency" />
+    </resultMap>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, potno, workarea, workcode, onedate, onevalue, twodate, twovalue, yield, efficiency
+    </sql>
+    <resultMap type="com.stylefeng.guns.modular.system.model.WarehouseForRadar" id="BaseResultList">
+        <result column="djwd" property="djwd"/>
+        <result column="yhlcnt"  property="yhlcnt"/>
+        <result column="fzb"  property="fzb"/>
+        <result column="dypl" property="dypl"/>
+        <result column="djzsp" property="djzsp"/>
+        <result column="fhlcnt"  property="fhlcnt"/>
+        <result column="zf" property="zf"/>
+
+    </resultMap>
+    <!--查询 单槽管理复盘控制面版-->
+    <select id="selectSingleTable" resultType="map">
+        select
+        '低限' as types,
+        '0' as runtime,
+        '0' as potno,
+        '0' as djwd,
+        '0' as yhlcnt,
+        '0' as fzb,
+        '0' as dypl,
+        '0' as djzsp,
+        '0' as fhlcnt,
+        '0' as zf
+        from DUAL
+
+        union ALL
+
+        select
+        '高限' as types,
+        '1' as runtime,
+        '1' as potno,
+        '1' as djwd,
+        '1' as yhlcnt,
+        '1' as fzb,
+        '1' as dypl,
+        '1' as djzsp,
+        '1' as fhlcnt,
+        '1' as zf
+        from DUAL
+
+        union ALL
+
+        select
+        '统一度量衡' as types,
+        base.runtime,
+        base.potno,
+        (select round((base.djwd-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DJWD') as djwd,
+        (select round((base.yhlcnt-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='YHLCNT') as yhlcnt,
+        (select round((base.fzb-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='FZB') as fzb,
+        (select round((base.setv-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DYPL') as dypl,
+        (select round((base.djzsp-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DJZSP') as djzsp,
+        (select round((base.fhlcnt-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='FHLCNT') as fhlcnt,
+        (select round((base.zf-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='ZF') as zf
+        from ecc_base_info base where date_format(base.runtime, '%Y-%m-%d')=#{newDate} and base.potno=#{potNo}
+
+        union ALL
+
+        select
+        '实际值' as types,
+        base.runtime,
+        base.potno,
+        base.djwd as djwd,
+        base.yhlcnt as yhlcnt,
+        base.fzb as fzb,
+        round((base.workv-base.setv)*1000,2) as dypl,
+        base.djzsp as djzsp,
+        base.fhlcnt as fhlcnt,
+        base.zf as zf
+        from ecc_base_info base where date_format(base.runtime, '%Y-%m-%d')=#{newDate} and base.potno=#{potNo}
+    </select>
+
+   <!--查询 单槽管理复盘控制面版 雷达图-->
+    <select id="selectSingleRadar" resultMap="BaseResultList">
+        select
+        (select round((base.djwd-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DJWD') as djwd,
+        (select round((base.yhlcnt-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='YHLCNT') as yhlcnt,
+        (select round((base.fzb-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='FZB') as fzb,
+        (select round((base.setv-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DYPL') as dypl,
+        (select round((base.djzsp-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='DJZSP') as djzsp,
+        (select round((base.fhlcnt-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='FHLCNT') as fhlcnt,
+        (select round((base.zf-dis.middlemin)/(dis.middlemax-dis.middlemin),2) from ecc_dict dis WHERE dis.element='ZF') as zf
+        from ecc_base_info base where date_format(base.runtime, '%Y-%m-%d')=#{newDate} and base.potno=#{potNo}
+    </select>
+
+    <!--查询 效率统计-->
+    <select id="parameterUnalysisPotnoList" resultType="map">
+        SELECT t.runtime,t.potno,t.val from (
+        SELECT  DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from  ecc_work_area area WHERE area.workcode=#{workCode}) and  t.val BETWEEN #{startInt} and #{endInt} ORDER BY t.val desc
+    </select>
+
+    <!--查询 效率统计 分项-->
+    <select id="parameterUnalysisPotnoAvage" resultType="map">
+
+        SELECT
+        '区间值' as types,
+        CONCAT(min(info.djwd),'~',max(info.djwd)) as djwd,
+        CONCAT(min(info.fhlcnt),'~',max(info.fhlcnt)) as fhlcnt,
+        CONCAT(min(info.fzb),'~',max(info.fzb)) as fzb,
+        CONCAT(min(info.djzsp),'~',max(info.djzsp)) as djzsp,
+        CONCAT(min(info.yhlcnt),'~',max(info.yhlcnt)) as yhlcnt,
+        CONCAT(min(info.zf+0),'~',max(info.zf+0)) as zf,
+        CONCAT(min(info.averagev),'~',max(info.averagev)) as averagev
+        FROM ecc_base_info info where DATE_FORMAT(info.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') AND info.potno in (SELECT t.potno from (
+        SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from  ecc_work_area area WHERE area.workcode=#{workCode}) and  t.val BETWEEN #{startInt} and #{endInt} ORDER BY t.val desc
+        )
+
+        UNION
+
+        SELECT
+        '平均值' as types,
+        round(sum(info.djwd)/count(info.id),2) as djwd,
+        round(sum(info.fhlcnt)/count(info.id),2) as fhlcnt,
+        round(sum(info.fzb)/count(info.id),2) as fzb,
+        round(sum(info.djzsp)/count(info.id),2) as djzsp,
+        round(sum(info.yhlcnt)/count(info.id),2) as yhlcnt,
+        round(sum(info.zf)/count(info.id),2) as zf,
+        round(sum(info.averagev)/count(info.id),2) as averagev
+        FROM ecc_base_info info where DATE_FORMAT(info.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') AND info.potno in (SELECT t.potno from (
+        SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from  ecc_work_area area WHERE area.workcode=#{workCode}) and  t.val BETWEEN #{startInt} and #{endInt} ORDER BY t.val desc
+        )
+    </select>
+    <select id="singlePotnoData" resultType="map">
+        SELECT 'zsxl' as type,'真实效率' as typename,house.efficiency as val from ecc_warehouse house where house.potno=#{potNo}
+        union
+        SELECT 'lsp' as type,'铝水平' as typename,info.lsp as val from ecc_base_info info where  info.potno=#{potNo} and info.runtime=#{newDate}
+        union
+        SELECT 'yhlcnt' as type,'氧化铝料量' as typename,info.yhlcnt as val from ecc_base_info info where  info.potno=#{potNo} and info.runtime=#{newDate}
+        union
+        SELECT 'djwd' as type,'槽温' as typename,info.djwd as val from ecc_base_info info where  info.potno=#{potNo} and info.runtime=#{newDate}
+        union
+        select 'zsl' as type,'指示量' as typename,ROUND((((select REPLACE(w.efficiency,'%','') from ecc_warehouse w where w.potno=#{potNo})/100*0.3355*405.5*24)+result.lvout)/1000,2) as val from ecc_potno_status statu,ecc_potno_result result
+        where
+        statu.djwd = ( case when (result.djwd is null or result.djwd = '') then statu.djwd else result.djwd end )
+        and statu.zf = ( case when (result.zf is null or result.zf = '') then statu.zf else result.zf end )
+        and statu.al203 = ( case when (result.al203 is null or result.al203 = '') then statu.al203 else result.al203 end )
+        and statu.djzsp = ( case when (result.djzsp is null or result.djzsp = '') then statu.djzsp else result.djzsp end )
+        and statu.zcll = ( case when (result.zcll is null or result.zcll = '') then statu.zcll else result.zcll end )
+        and statu.dypl = ( case when (result.dypl is null or result.dypl = '') then statu.dypl else result.dypl end )
+        and statu.fzb = ( case when (result.fzb is null or result.fzb = '') then statu.fzb else result.fzb end )
+        and statu.aif3 = ( case when (result.aif3 is null or result.aif3 = '') then statu.aif3 else result.aif3 end )
+        and statu.result=result.result and statu.potno=#{potNo} and statu.runtime=#{newDate};
+    </select>
+    <select id="singlePotnoHeight" resultType="map">
+    select GROUP_CONCAT(s2.potno) as type,GROUP_CONCAT(s2.val) as val from (SELECT wei.potno as potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno HAVING wei.potno>0 order by val desc LIMIT 0,7) s2
+    </select>
+    <select id="singlePotnoLow" resultType="map">
+        select GROUP_CONCAT(s2.potno) as type,GROUP_CONCAT(s2.val) as val from (SELECT wei.potno as potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno HAVING wei.potno>0 order by val asc LIMIT 0,7) s2
+    </select>
+    <!--电解温度 散点图-->
+    <select id="scatterDJWD" resultType="string">
+    SELECT CONCAT('[',s1.val ,',',s2.val,',',s2.potno,']') as attr from
+    (SELECT t.runtime,t.potno,t.val from ( SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from ecc_work_area area WHERE area.workcode=#{workCode})) s1,
+    (SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, AVG(info.djwd) as val FROM ecc_mes_potnoweight wei,ecc_base_info info where wei.runtime=info.runtime and wei.potno=info.potno and DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) s2 where s1.runtime=s2.runtime and s1.potno=s2.potno
+    </select>
+    <!--电解分子比 散点图-->
+    <select id="scatterFZB" resultType="string">
+    SELECT CONCAT('[',s1.val ,',',s2.val,',',s2.potno,']') as attr from
+    (SELECT t.runtime,t.potno,t.val from ( SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from ecc_work_area area WHERE area.workcode=#{workCode})) s1,
+    (SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, AVG(info.fzb) as val FROM ecc_mes_potnoweight wei,ecc_base_info info where wei.runtime=info.runtime and wei.potno=info.potno and DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) s2 where s1.runtime=s2.runtime and s1.potno=s2.potno
+    </select>
+    <!--电解电压 散点图-->
+    <select id="scatterSETV" resultType="string">
+        SELECT CONCAT('[',s1.val ,',',s2.val,',',s2.potno,']') as attr from
+        (SELECT t.runtime,t.potno,t.val from ( SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) t where t.potno in(select area.potno from ecc_work_area area WHERE area.workcode=#{workCode})) s1,
+        (SELECT DATE_FORMAT(wei.runtime,'%Y-%m') as runtime,wei.potno, AVG(info.setv) as val FROM ecc_mes_potnoweight wei,ecc_base_info info where wei.runtime=info.runtime and wei.potno=info.potno and DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{newDate},'%Y-%m') GROUP BY wei.potno) s2 where s1.runtime=s2.runtime and s1.potno=s2.potno
+    </select>
+</mapper>

@@ -1,0 +1,43 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+    <div class="ibox-content">
+        <div class="form-horizontal">
+
+            <input type="hidden" id="id" value="">
+
+            <div class="row">
+                <div class="col-sm-6 b-r">
+                            <#input id="id" name="主键id" underline="true"/>
+                            <#input id="djwd" name="电解温度" underline="true"/>
+                            <#input id="fhlcnt" name="氟化铝料量" underline="true"/>
+                            <#input id="fzb" name="分子比" underline="true"/>
+                            <#input id="setv" name="平均电压" underline="true"/>
+                            <#input id="djzsp" name="电解质水平" underline="true"/>
+                            <#input id="yhlcnt" name="氧化铝投入量" underline="true"/>
+                            <#input id="zf" name="噪声"/>
+                </div>
+
+                <div class="col-sm-6">
+                            <#input id="workv" name="工作电压" underline="true"/>
+                            <#input id="result" name="结果" underline="true"/>
+                            <#input id="alias" name="别名" underline="true"/>
+                            <#input id="createtime" name="创建时间" underline="true"/>
+                            <#input id="updatetime" name="更新时间" underline="true"/>
+                            <#input id="Reason" name="保留字段" underline="true"/>
+                            <#input id="Step" name="保留字段" underline="true"/>
+                            <#input id="obj3" name="保留字段" underline="true"/>
+                </div>
+            </div>
+
+            <div class="row btn-group-m-t">
+                <div class="col-sm-10">
+                    <#button btnCss="info" name="提交" id="ensure" icon="fa-check" clickFun="RulesInfoDlg.addSubmit()"/>
+                    <#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser" clickFun="RulesInfoDlg.close()"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/rules/rules_info.js"></script>
+@}

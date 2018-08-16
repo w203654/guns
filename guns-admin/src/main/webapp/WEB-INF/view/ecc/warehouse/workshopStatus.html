@@ -1,0 +1,46 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>车间槽状态展示</h5>
+            </div>
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#TimeCon id="startTime" name="开始日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <#TimeCon id="endTime" name="结束日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-2">
+                                <#button name="搜索" icon="fa-search" clickFun="Warehouse.search()"/>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row" style="margin-top:30px;">
+                           <div class="col-sm-3" style="height:300px"><div id="container01" style="height: 100%"></div></div>
+                           <div class="col-sm-3" style="height:300px"><div id="container02" style="height: 100%"></div></div>
+                           <div class="col-sm-3" style="height:300px"><div id="container03" style="height: 100%"></div></div>
+                           <div class="col-sm-3" style="height:300px"><div id="container04" style="height: 100%"></div></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-9"><#table id="WarehouseTable"/></div>
+                            <div class="col-sm-3" style="height:300px"><div id="container05" style="height: 100%"></div></div>
+                        </div>
+
+
+                    </div>
+                    <!--雷达图-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/warehouse/workshopStatus.js"></script>
+@}

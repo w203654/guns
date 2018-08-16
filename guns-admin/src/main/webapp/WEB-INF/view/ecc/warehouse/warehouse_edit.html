@@ -1,0 +1,29 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+    <div class="ibox-content">
+        <div class="form-horizontal">
+
+            <input type="hidden" id="id" value="${item.id}">
+
+            <div class="row">
+                <div class="col-sm-12 b-r">
+                    <div class="col-sm-6"><#input id="id" name="序列号" value="${item.id}" readonly="fale" underline="true"/></div>
+                    <div class="col-sm-6"><#input id="potno" name="槽号" value="${item.potno}"  readonly="fale" underline="true"/></div>
+                    <div class="col-sm-6"><#TimeCon id="newDate" name="盘存日期" isTime="false" pattern="YYYY-MM-DD" underline="true"/></div>
+                     <div class="col-sm-6"><#input id="newValue" name="盘存量" type="number" underline="true"/></div>
+                </div>
+
+            </div>
+
+            <div class="row btn-group-m-t">
+                <div class="col-sm-10">
+                    <#button btnCss="info" name="提交" id="ensure" icon="fa-check" clickFun="WarehouseInfoDlg.editSubmit()"/>
+                    <#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser" clickFun="WarehouseInfoDlg.close()"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/warehouse/warehouse_info.js"></script>
+@}

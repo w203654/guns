@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <title>槽控系统 - 主页</title>
+    <link rel="shortcut icon" href="${ctxPath}/static/favicon.ico">
+    <link href="${ctxPath}/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="${ctxPath}/static/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="${ctxPath}/static/css/animate.css" rel="stylesheet">
+    <link href="${ctxPath}/static/css/style.css?v=4.1.0" rel="stylesheet">
+</head>
+
+<body class="gray-bg top-navigation ">
+    <div id="wrapper">
+        <div id="page-wrapper" style="padding:0px;" class="gray-bg">
+            <div class="row border-bottom white-bg">
+                <nav class="navbar navbar-static-top" role="navigation">
+                    <!--<div class="navbar-header">
+                        <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                            <i class="fa fa-reorder"></i>
+                        </button>
+                        <a href="#" class="navbar-brand">Hplus</a>
+                    </div>-->
+                    <div class="navbar-collapse collapse" id="navbar">
+                        <ul class="nav navbar-nav">
+
+                            <li class="active">
+                                <a aria-expanded="false" role="button" href="${ctxPath}/"> 返回首页</a>
+                            </li>
+                            @for(title in titles){
+                            @if(tool.isEmpty(title.children)){
+                            <li class="dropdown">
+                                <a aria-expanded="false" role="button" href="${ctxPath}${title.url}" class="dropdown-toggle" target="iframe0"> ${title.name} </a></li>
+                                @}else{
+                            <li class="dropdown">
+                                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> ${title.name} <span class="caret"></span></a>
+                                <ul role="menu" class="dropdown-menu">
+                                    @for(subTitle in title.children){
+                                    <li><a href="${ctxPath}${subTitle.url}" target="iframe0">${subTitle.name}</a> </li>
+                                    @}
+                                </ul>
+                            </li>
+                            @}}
+                            <li>
+                                <a href="${ctxPath}/logout">
+                                    <i class="fa fa-sign-out"></i> 退出
+                                </a>
+                            </li>
+                        </ul>
+
+                    </div>
+                </nav>
+            </div>
+            <div class="wrapper wrapper-content" style="padding: 0px" >
+
+                    <div class="wrapper" style="height:800px;overflow:hidden">
+                        <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="${ctxPath}/blackboard" frameborder="0" data-id="${ctxPath}/blackboard" seamless></iframe>
+                    </div>
+
+
+
+            </div>
+            <div class="footer">
+                <div class="pull-right">
+                    By：<a href="http://www.zi-han.net" target="_blank">zihan's blog</a>
+                </div>
+                <div>
+                    <strong>Copyright</strong> H+ &copy; 2014
+                </div>
+            </div>
+
+        </div>
+       
+    </div>
+
+    <!-- 全局js -->
+    <script src="${ctxPath}/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="${ctxPath}/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="${ctxPath}/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="${ctxPath}/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="${ctxPath}/static/js/plugins/layer/layer.min.js"></script>
+
+    <!-- 自定义js -->
+    <script src="${ctxPath}/static/js/hplus.js?v=4.1.0"></script>
+    <script type="text/javascript" src="${ctxPath}/static/js/contabs.js"></script>
+
+    <!-- 第三方插件 -->
+    <script src="${ctxPath}/static/js/plugins/pace/pace.min.js"></script>
+
+</body>
+
+</html>

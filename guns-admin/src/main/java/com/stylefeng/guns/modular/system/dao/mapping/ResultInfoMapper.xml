@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.ResultInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.ResultInfo">
+        <id column="id" property="id" />
+        <result column="runtime" property="runtime" />
+        <result column="potno" property="potno" />
+        <result column="yhlcnt" property="yhlcnt" />
+        <result column="setv" property="setv" />
+        <result column="workv" property="workv" />
+        <result column="fhlcnt" property="fhlcnt" />
+        <result column="zf" property="zf" />
+        <result column="djzsp" property="djzsp" />
+        <result column="djwd" property="djwd" />
+        <result column="fzb" property="fzb" />
+        <result column="result" property="result" />
+        <result column="createtime" property="createtime" />
+        <result column="updatetime" property="updatetime" />
+        <result column="reason" property="reason" />
+        <result column="step" property="step" />
+        <result column="obj3" property="obj3" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, runtime, potno, yhlcnt, setv, workv, fhlcnt, zf, djzsp, djwd, fzb, result, createtime, updatetime, reason, step, obj3
+    </sql>
+
+    <select id="selectCategoryCount" resultType="map">
+        SELECT
+        DISTINCT(results.result) as 'name',
+        COUNT(results.id) as 'value'
+        from
+        ecc_result_info results
+        <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+         WHERE results.runtime BETWEEN cast(#{startTime} as datetime)
+        and cast(#{endTime} as datetime)
+        </if>
+        <if test="listPotno!=null and listPotno.size > 0">
+            and potno in
+            <foreach item="item" index="index" collection="listPotno" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </if>
+
+
+        GROUP BY
+        results.result
+    </select>
+
+
+    <select id="selectWorkshopCount" resultType="map">
+        SELECT '一车间' as 'type',
+        MAX(CASE s2.name WHEN '冷槽' THEN s2.value ELSE 0 END ) lc,
+        MAX(CASE s2.name WHEN '热槽' THEN s2.value ELSE 0 END ) rc,
+        MAX(CASE s2.name WHEN '无序槽' THEN s2.value ELSE 0 END ) wxc,
+        MAX(CASE s2.name WHEN '正常槽' THEN s2.value ELSE 0 END ) zcc
+        from (
+        SELECT DISTINCT(results.result) as 'name', COUNT(results.id) as 'value' from ecc_result_info results where results.potno in(select area.potno from ecc_work_area area where area.workcode=1) and results.runtime BETWEEN str_to_date(#{startTime},'%Y-%m-%d') and str_to_date(#{endTime},'%Y-%m-%d') GROUP BY results.result
+        ) s2
+        union
+        SELECT '二车间' as 'type',
+        MAX(CASE s2.name WHEN '冷槽' THEN s2.value ELSE 0 END ) lc,
+        MAX(CASE s2.name WHEN '热槽' THEN s2.value ELSE 0 END ) rc,
+        MAX(CASE s2.name WHEN '无序槽' THEN s2.value ELSE 0 END ) wxc,
+        MAX(CASE s2.name WHEN '正常槽' THEN s2.value ELSE 0 END ) zcc
+        from (
+        SELECT DISTINCT(results.result) as 'name', COUNT(results.id) as 'value' from ecc_result_info results where results.potno in(select area.potno from ecc_work_area area where area.workcode=2) and results.runtime BETWEEN str_to_date(#{startTime},'%Y-%m-%d') and str_to_date(#{endTime},'%Y-%m-%d') GROUP BY results.result
+        ) s2
+        union
+        SELECT '三车间' as 'type',
+        MAX(CASE s2.name WHEN '冷槽' THEN s2.value ELSE 0 END ) lc,
+        MAX(CASE s2.name WHEN '热槽' THEN s2.value ELSE 0 END ) rc,
+        MAX(CASE s2.name WHEN '无序槽' THEN s2.value ELSE 0 END ) wxc,
+        MAX(CASE s2.name WHEN '正常槽' THEN s2.value ELSE 0 END ) zcc
+        from (
+        SELECT DISTINCT(results.result) as 'name', COUNT(results.id) as 'value' from ecc_result_info results where results.potno in(select area.potno from ecc_work_area area where area.workcode=3) and results.runtime BETWEEN str_to_date(#{startTime},'%Y-%m-%d') and str_to_date(#{endTime},'%Y-%m-%d') GROUP BY results.result
+        ) s2
+        union
+        SELECT '四车间' as 'type',
+        MAX(CASE s2.name WHEN '冷槽' THEN s2.value ELSE 0 END ) lc,
+        MAX(CASE s2.name WHEN '热槽' THEN s2.value ELSE 0 END ) rc,
+        MAX(CASE s2.name WHEN '无序槽' THEN s2.value ELSE 0 END ) wxc,
+        MAX(CASE s2.name WHEN '正常槽' THEN s2.value ELSE 0 END ) zcc
+        from (
+        SELECT DISTINCT(results.result) as 'name', COUNT(results.id) as 'value' from ecc_result_info results where results.potno in(select area.potno from ecc_work_area area where area.workcode=4) and results.runtime BETWEEN str_to_date(#{startTime},'%Y-%m-%d') and str_to_date(#{endTime},'%Y-%m-%d') GROUP BY results.result
+        ) s2
+        union
+        SELECT '全部车间' as 'type',
+        MAX(CASE s2.name WHEN '冷槽' THEN s2.value ELSE 0 END ) lc,
+        MAX(CASE s2.name WHEN '热槽' THEN s2.value ELSE 0 END ) rc,
+        MAX(CASE s2.name WHEN '无序槽' THEN s2.value ELSE 0 END ) wxc,
+        MAX(CASE s2.name WHEN '正常槽' THEN s2.value ELSE 0 END ) zcc
+        from (
+        SELECT DISTINCT(results.result) as 'name', COUNT(results.id) as 'value' from ecc_result_info results where results.runtime BETWEEN str_to_date(#{startTime},'%Y-%m-%d') and str_to_date(#{endTime},'%Y-%m-%d') GROUP BY results.result
+        ) s2
+    </select>
+</mapper>

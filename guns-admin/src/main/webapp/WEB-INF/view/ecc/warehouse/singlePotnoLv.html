@@ -1,0 +1,77 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+           <!-- <div class="ibox-title">
+                <h5>单槽建议出铝指示量</h5>
+            </div>-->
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#TimeCon id="newDate" name="日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <#SelectCon class="input-group" id="workCode" name="车间" >
+                                    <option value="1">一车间</option>
+                                    <option value="2">二车间</option>
+                                    <option value="3">三车间</option>
+                                    <option value="4">四车间</option>
+                                </#SelectCon>
+                            </div>
+                            <div class="col-sm-3">
+                                <#SelectCon class="input-group" id="potNo" name="槽号" >
+                                    <option>1001</option>
+                                    <option>1002</option>
+                                    <option>1003</option>
+                                    <option>1004</option>
+                                    <option>1005</option>
+                                </#SelectCon>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <#button name="搜索" icon="fa-search" clickFun="search()"/>
+                            </div>
+                        </div>
+
+                        <div class="row"  style="margin-top:30px;">
+                            <div class="col-sm-5" >
+                                <div class="col-sm-7" >
+                                    <#NameCon id="zsxl"  name="真实效率(%)" /><p/>
+                                </div>
+                                <div class="col-sm-7" >
+                                    <#NameCon  id="lsp" name="铝水平(cm)" /><p/>
+                                </div>
+                                <div class="col-sm-7" >
+                                    <#NameCon id="yhlcnt" name="氧化铝料量(kg)" /><p/>
+                                </div>
+                                <div class="col-sm-7" >
+                                    <#NameCon id="djwd" name="槽温(℃)" /><p/>
+                                </div>
+                                <div class="col-sm-7" >
+                                    <#NameCon id="zsl" name="指示量(kg)" /><p/>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-7" ><img class="img-thumbnail" style="height:238px;" src="${ctxPath}/static/img/singlePotno02.png"></div>
+                        </div>
+
+                        <div class="row" >
+                            <div class="col-sm-5" style="margin-top:50px;" ><div id="container01" style="height: 300px;"></div></div>
+                            <div class="col-sm-5" style="margin-top:50px;"><div id="container02" style="height: 300px;"></div></div>
+                        </div>
+
+
+
+
+                    </div>
+                    <!--雷达图-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/warehouse/singlePotnoLv.js"></script>
+@}

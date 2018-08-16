@@ -1,0 +1,173 @@
+@layout("/common/_container.html"){
+<div class="container-fluid" style="padding: 0 !important;">
+    <div class="row">
+        <div class="col-sm-3">
+            <#TimeCon id="startTime" name="开始日期" isTime="false" pattern="YYYY-MM-DD"/>
+        </div>
+        <div class="col-sm-3">
+            <#TimeCon id="endTime" name="结束日期" isTime="false" pattern="YYYY-MM-DD"/>
+        </div>
+        <div class="col-sm-3">
+            <#SelectCon class="input-group" id="workCode" name="车间" >
+                <option value="">全部槽控</option>
+                <option value="1">一车间</option>
+                <option value="2">二车间</option>
+                <option value="3">三车间</option>
+                <option value="4">四车间</option>
+            </#SelectCon>
+        </div>
+        <div class="col-sm-3">
+            <#button name="搜索" icon="fa-search" clickFun="rePieInit()"/>
+        </div>
+    </div>
+    <div class="row center-block">
+        <div class="col-sm-5" id="main" style="width:400px;height:380px;margin-top:10%"></div>
+
+
+        <div class="col-sm-7" id="mainInfo">
+            <div class="row text-center"><h1 id="contendTitle">全部槽控</h1><strong id="contendDateTime">2018-01-01 至 2018-02-01</strong></div>
+            <div class="row"><#table id="ResultInfoTable"/></div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    /**
+     * 初始化 日期
+     */
+  $('#startTime').val(laydate.now(0, 'YYYY-MM-DD'));
+  $('#endTime').val(laydate.now(0, 'YYYY-MM-DD'));
+  pieInit();
+    /**
+     * 初始化 表格
+     */
+     $("#contendDateTime")[0].innerHTML=$("#startTime").val()+" 至 "+$("#endTime").val();
+     var queryData = {};
+  queryData['beginTime'] = $("#startTime").val();
+  queryData['endTime'] = $("#endTime").val();
+    queryData['workCode'] = $("#workCode").val();
+  var defaultColunms = ResultInfo.initColumn();
+    var table = new BSTable(ResultInfo.id, "/resultInfo/list", defaultColunms);
+    table.setPaginationType("client");
+    table.showRefresh=false;
+    table.showColumns=false;
+    table.setQueryParams(queryData);
+    ResultInfo.table = table.init();
+});
+
+
+/**
+ * 槽控结果展示管理初始化
+ */
+var ResultInfo = {
+    id: "ResultInfoTable",	//表格id
+    seItem: null,		//选中的条目
+    table: null,
+    layerIndex: -1
+};
+
+/**
+ * 初始化表格的列
+ */
+ResultInfo.initColumn = function () {
+    return [
+     <!--   {field: 'selectItem', radio: true},-->
+            {title: '主键id', field: 'id', visible: false, align: 'center', valign: 'middle'},
+            {title: '运行时间', field: 'runtime', visible: true, align: 'center', valign: 'middle'},
+            {title: '槽号', field: 'potno', visible: true, align: 'center', valign: 'middle'},
+            {title: '结果代码', field: 'workv', visible: true, align: 'center', valign: 'middle'},
+            {title: '结果', field: 'result', visible: true, align: 'center', valign: 'middle'},
+           {title: '问题原因', field: 'reason', visible: true, align: 'center', valign: 'middle'},
+            {title: '解决方法', field: 'step', visible: true, align: 'center', valign: 'middle'}
+
+    ];
+};
+
+
+
+
+function pieInit(){
+// 基于准备好的dom，初始化echarts实例
+ var myChart = echarts.init(document.getElementById('main'));
+ option = {
+ aria: {
+        show: true
+    },
+    tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    series : [
+        {
+            name: '数据量',
+            type: 'pie',
+            radius : '90%',
+           center: ['50%', '50%'],
+            data:[
+                {value:1, name:'正常槽'},
+                {value:1, name:'热槽'},
+                {value:1, name:'冷槽'}
+            ],
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }
+    ]
+};
+myChart.on('click', function (params) {
+    // 控制台打印数据的名称
+    $("#contendTitle")[0].innerHTML=params.name;
+    $("#contendDateTime")[0].innerHTML=$("#startTime").val()+" 至 "+$("#endTime").val();
+
+   var queryData = {};
+  queryData['result'] = params.name;
+  queryData['beginTime'] = $("#startTime").val();
+  queryData['endTime'] = $("#endTime").val();
+  ResultInfo.table.refresh({query: queryData});
+});
+// 使用刚指定的配置项和数据显示图表。
+  myChart.setOption(option);
+
+  $.get('/resultInfo/selectCategoryCount',{startTime: $("#startTime").val(), endTime: $("#endTime").val(),workCode: $("#workCode").val()}).done(function (data) {
+    // 填入数据
+    myChart.setOption({
+        series: [{
+            // 根据名字对应到相应的系列
+         <!--   name: '访问来源',-->
+            data: data.data
+        }]
+    });
+});
+}
+function rePieInit(){
+  pieInit();
+
+var showVar='';
+var va=$("#workCode").val();
+switch(va)
+{
+case '':showVar='全部槽控';  break;
+case '1':showVar='一车间';  break;
+case '2':showVar='二车间';  break;
+case '3':showVar='三车间';  break;
+case '4':showVar='四车间';  break;
+}
+
+
+ $("#contendTitle")[0].innerHTML=showVar;
+ $("#contendDateTime")[0].innerHTML=$("#startTime").val()+" 至 "+$("#endTime").val();
+var queryData = {};
+ queryData['result'] =null;
+  queryData['beginTime'] = $("#startTime").val();
+  queryData['endTime'] = $("#endTime").val();
+  queryData['workCode'] = $("#workCode").val();
+  ResultInfo.table.refresh({query: queryData});
+  }
+</script>
+@}

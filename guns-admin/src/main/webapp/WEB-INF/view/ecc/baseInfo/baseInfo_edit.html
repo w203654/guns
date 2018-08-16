@@ -1,0 +1,42 @@
+@layout("/common/_container.html"){
+<div class="ibox float-e-margins">
+    <div class="ibox-content">
+        <div class="form-horizontal">
+
+            <input type="hidden" id="id" value="${item.id}">
+
+            <div class="row">
+                <div class="col-sm-6 b-r">
+                            <#input id="id" name="主键id" value="${item.id}" underline="true" disabled="disabled"/>
+                            <#input id="runtime" name="运行时间" value="${item.runtime}" underline="true" type="datetime" clickFun="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})"/>
+                            <#input id="potno" name="槽号" value="${item.potno}" underline="true"/>
+                            <#input id="yhlcnt" name="氧化铝投入量" value="${item.yhlcnt}" underline="true"/>
+                            <#input id="setv" name="平均电压" value="${item.setv}" underline="true"/>
+                            <#input id="workv" name="工作电压" value="${item.workv}" underline="true"/>
+                            <#input id="fhlcnt" name="氟化铝料量" value="${item.fhlcnt}" underline="true"/>
+                            <#input id="zf" name="噪声" value="${item.zf}" />
+                </div>
+
+                <div class="col-sm-6">
+                            <#input id="djzsp" name="电解质水平" value="${item.djzsp}" underline="true"/>
+                            <#input id="djwd" name="电解温度" value="${item.djwd}" underline="true"/>
+                            <#input id="fzb" name="分子比" value="${item.fzb}" underline="true"/>
+                            <#input id="createtime" name="创建时间" value="${item.createtime}" underline="true"/>
+                            <#input id="obj1" name="保留字段" value="${item.obj1}" underline="true"/>
+                            <#input id="obj2" name="保留字段" value="${item.obj2}" underline="true"/>
+                            <#input id="obj3" name="保留字段" value="${item.obj3}" />
+                </div>
+            </div>
+
+            <div class="row btn-group-m-t">
+                <div class="col-sm-10">
+                    <#button btnCss="info" name="提交" id="ensure" icon="fa-check" clickFun="BaseInfoInfoDlg.editSubmit()"/>
+                    <#button btnCss="danger" name="取消" id="cancel" icon="fa-eraser" clickFun="BaseInfoInfoDlg.close()"/>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/baseInfo/baseInfo_info.js"></script>
+@}

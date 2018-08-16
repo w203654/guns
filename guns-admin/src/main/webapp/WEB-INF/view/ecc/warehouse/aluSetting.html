@@ -1,0 +1,101 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+           <!-- <div class="ibox-title">
+                <h5>效率参数分析</h5>
+            </div>-->
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#TimeCon id="startTime" name="开始日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <#TimeCon id="endTime" name="结束日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-2">
+                                <#SelectCon class="input-group" id="workCode" name="车间" >
+                                    <option value="1">一车间</option>
+                                    <option value="2">二车间</option>
+                                    <option value="3">三车间</option>
+                                    <option value="4">四车间</option>
+                                </#SelectCon>
+                            </div>
+                            <div class="col-sm-2">
+                                <#SelectCon class="input-group" id="potNo" name="槽号" >
+                                    <option>1001</option>
+                                    <option>1002</option>
+                                    <option>1003</option>
+                                    <option>1004</option>
+                                    <option>1005</option>
+                                </#SelectCon>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <#button name="搜索" icon="fa-search" clickFun="Warehouse.search()"/>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6" style="background-image:url('/static/img/aluSettingBg.png');width:600px;height:400px;">
+                                <div class="col-sm-4" style="margin-top:100px;text-align:center;"><H3 id="c_value">50KG</H3></div>
+                                <div class="col-sm-4 col-sm-offset-3" style="margin-top:100px;text-align:center;"><H3 id="f_value">90KG</H3></div>
+
+                                <div class="col-sm-5" style="margin-top:100px;text-align:center;">
+                                    <div class="col-sm-12" >
+                                        <#NameCon id="q_fzb"  name="分子比" /><p/>
+                                    </div>
+                                    <div class="col-sm-12" >
+                                        <#NameCon id="q_djwd"  name="槽温" /><p/>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-5  col-sm-offset-1" style="margin-top:100px;text-align:center;">
+                                    <div class="col-sm-12" >
+                                        <#NameCon id="c_fzb"  name="分子比" /><p/>
+                                    </div>
+                                    <div class="col-sm-12" >
+                                        <#NameCon id="c_djwd"  name="槽温" /><p/>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-sm-5 ">
+                                <div class="col-sm-12 panel panel-primary" style="margin-top:50px;margin-bottom:80px;">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">处理措施</h3>
+                                        </div>
+                                        <div class="panel-body" id="f_mark">
+                                            请检查氟盐是否空仓，及是否存在下料异常。
+                                        </div>
+                                </div>
+
+                                <div class="col-sm-12" >
+                                    <div class="col-sm-10" >
+                                        <#NameCon id="fzb_qs"  name="分子比趋势" placeholder="上行"/><p/>
+                                    </div>
+                                    <div class="col-sm-10" >
+                                        <#NameCon id="djwd_qs"  name="槽温变化趋势"  placeholder="下行"/><p/>
+                                    </div>
+                                    <div class="col-sm-10" >
+                                        <#NameCon id="qjxh"  name="区间氟盐消耗(kg)"  placeholder="78"/><p/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <#table id="WarehouseTable"/>
+
+                    </div>
+                    <!--雷达图-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/warehouse/aluSetting.js"></script>
+@}

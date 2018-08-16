@@ -1,0 +1,86 @@
+@layout("/common/_container.html"){
+<div class="row">
+    <div class="col-sm-12">
+        <div class="ibox float-e-margins">
+           <!-- <div class="ibox-title">
+                <h5>单槽管理复盘控制面版</h5>
+            </div>-->
+            <div class="ibox-content">
+                <div class="row row-lg">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <#TimeCon id="newDate" name="日期" isTime="false" pattern="YYYY-MM-DD"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <#SelectCon class="input-group" id="workCode" name="车间" >
+                                    <option value="1">一车间</option>
+                                    <option value="2">二车间</option>
+                                    <option value="3">三车间</option>
+                                    <option value="4">四车间</option>
+                                </#SelectCon>
+                            </div>
+                            <div class="col-sm-3">
+                                <#SelectCon class="input-group" id="potNo" name="槽号" >
+                                    <option>1001</option>
+                                    <option>1002</option>
+                                    <option>1003</option>
+                                    <option>1004</option>
+                                    <option>1005</option>
+                                </#SelectCon>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <#button name="搜索" icon="fa-search" clickFun="Warehouse.search()"/>
+                            </div>
+                        </div>
+                        <!--<div class="hidden-xs" id="WarehouseTableToolbar" role="group">
+                            @if(shiro.hasPermission("/warehouse/add")){
+                                <#button name="添加" icon="fa-plus" clickFun="Warehouse.openAddWarehouse()"/>
+                            @}
+                            @if(shiro.hasPermission("/warehouse/update")){
+                                <#button name="修改" icon="fa-edit" clickFun="Warehouse.openWarehouseDetail()" space="true"/>
+                            @}
+                            @if(shiro.hasPermission("/warehouse/delete")){
+                                <#button name="删除" icon="fa-remove" clickFun="Warehouse.delete()" space="true"/>
+                            @}
+                        </div>-->
+                        <#table id="WarehouseTable"/>
+
+                        <div class="row">
+                            <div class="col-sm-6" >
+                                <div class="col-sm-10" >
+                                    <#NameCon id="drcl"  name="当日产量(t)" /><p/>
+                                </div>
+                                <div class="col-sm-10" >
+                                    <#NameCon  id="drxl" name="当日效率(%)" /><p/>
+                                </div>
+                                <div class="col-sm-10" >
+                                    <#NameCon id="ljxl" name="本月累计效率(%)" /><p/>
+                                </div>
+                                <div class="col-sm-10" >
+                                    <#NameCon id="ljdh" name="本月累计电耗(kwh)" /><p/>
+                                </div>
+                                <div class="col-sm-10" >
+                                    <#NameCon id="pjdy" name="本月平均电压(v)" /><p/>
+                                </div>
+                                <div class="col-sm-10" >
+                                    <#NameCon id="zcll" name="预测在产铝量(t)"/>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-6" id="container" style="height:500px"/>
+
+                        </div>
+
+
+                    </div>
+                    <!--雷达图-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="${ctxPath}/static/modular/ecc/warehouse/singleControl.js"></script>
+@}

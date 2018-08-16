@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.stylefeng.guns.modular.system.dao.BaseInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.stylefeng.guns.modular.system.model.BaseInfo">
+        <id column="id" property="id" />
+        <result column="runtime" property="runtime" />
+        <result column="potno" property="potno" />
+        <result column="yhlcnt" property="yhlcnt" />
+        <result column="setv" property="setv" />
+        <result column="workv" property="workv" />
+        <result column="averagev" property="averagev" />
+        <result column="fhlcnt" property="fhlcnt" />
+        <result column="zf" property="zf" />
+        <result column="djzsp" property="djzsp" />
+        <result column="djwd" property="djwd" />
+        <result column="fzb" property="fzb" />
+        <result column="createtime" property="createtime" />
+        <result column="obj1" property="obj1" />
+        <result column="obj2" property="obj2" />
+        <result column="obj3" property="obj3" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, runtime, potno, yhlcnt, setv, workv,averagev, fhlcnt, zf, djzsp, djwd, fzb, createtime, obj1, obj2, obj3
+    </sql>
+
+    <select id="selectEccData" resultType="map">
+        select
+        #{dateTime} as 'Ddate',
+        innerO.OuterPotNo  'PotNo',
+        ISNULL(dayt.YhlCnt,0)  'YhlCnt',
+        ISNULL(dayt.SetV,0) 'SetV',
+        ISNULL(dayt.WorkV,0) 'WorkV',
+        ISNULL(dayt.AverageV,0) 'AverageV',
+        ISNULL(dayt.FhlCnt,0) 'FhlCnt',
+        ISNULL(dayt.ZF,0) 'ZF',
+        (select TOP 1 meas.Djzsp from MeasueDataTable meas where meas.PotNo=dayt.PotNo and meas.DDate <![CDATA[ <= ]]> CONVERT(VARCHAR(10), #{dateTime}, 20) and meas.Djzsp is not null order by meas.DDate desc) as 'Djzsp',
+        (select TOP 1 meas.Djwd from MeasueDataTable meas where meas.PotNo=dayt.PotNo and meas.DDate <![CDATA[ <= ]]> CONVERT(VARCHAR(10), #{dateTime}, 20)  and meas.Djwd is not null order by meas.DDate desc) as 'Djwd',
+        (select TOP 1 meas.Fzb from MeasueDataTable meas where meas.PotNo=dayt.PotNo and meas.DDate <![CDATA[ <= ]]> CONVERT(VARCHAR(10), #{dateTime}, 20) and meas.Fzb is not null order by meas.DDate desc) as 'Fzb',
+        ISNULL(meas.Lsp,0) 'Lsp',
+        ISNULL(s2.PotAge,0) 'PotAge',
+        ISNULL(s2.StopAge,0) 'StopAge',
+        ISNULL(s2.Age,0) 'Age',
+        ISNULL(s3.p12,0) 'AIF3set'
+
+        from
+        DayTable dayt
+        left join MeasueDataTable meas on dayt.PotNo = meas.PotNo
+        and dayt.Ddate = meas.DDate
+        left join InnerOuterTable innerO on innerO.InnerPotNo=dayt.PotNo
+        left join (select p1.PotNo,p1.PotAge,p1.StopAge,p1.Age from PotAgeTable1 p1 union select p2.PotNo,p2.PotAge,p2.StopAge,p2.Age from PotAgeTable2 p2) s2 on s2.PotNo=innerO.InnerPotNo
+        left join (select t1.PotNo,t1.p12 from PotSetValueTable1 t1  union select t2.PotNo,t2.p12 from PotSetValueTable2 t2) s3 on s2.PotNo=s3.PotNo
+        where
+        CONVERT (
+        VARCHAR(10),
+        dayt.Ddate,
+        23
+        ) = CONVERT (
+        VARCHAR(10),
+        DATEADD(DAY, -1, #{dateTime}),
+        23
+        );
+    </select>
+    <select id="selectMesData" resultType="map">
+        select to_char(t.c_datetime, 'yyyy-mm-dd') as runtime,
+        t.slot_no as potno,
+        sum(t.plan_weight) as planweight,
+        sum(t.z_weight) as zweight
+        FROM INTF_CRANE_MES_WEIGHT t
+        where to_char(t.c_datetime, 'yyyy-mm-dd') = #{dateTime}
+        and t.output_flag = 3
+        group by to_char(t.c_datetime, 'yyyy-mm-dd'), t.slot_no
+        having  sum(t.z_weight) &lt; 4
+
+        union
+
+        select s2.runtime      as runtime,
+        s2.potno        as potno,
+        wei.plan_weight as planweight,
+        wei.z_weight    as zweight
+        from INTF_CRANE_MES_WEIGHT wei,
+        (select to_char(t.c_datetime, 'yyyy-mm-dd') as runtime,
+        t.slot_no as potno,
+        sum(t.plan_weight) as planweight,
+        sum(t.z_weight) as zweight
+        FROM INTF_CRANE_MES_WEIGHT t
+        where to_char(t.c_datetime, 'yyyy-mm-dd') = #{dateTime}
+        and t.output_flag = 3
+        group by to_char(t.c_datetime, 'yyyy-mm-dd'), t.slot_no
+        having sum(t.z_weight) &gt; 4
+        ) s2
+        where wei.rec_time is not null
+        and wei.output_flag = 3
+        and to_char(wei.c_datetime, 'yyyy-mm-dd') = s2.runtime
+        and wei.slot_no = s2.potno
+    </select>
+
+    <select id="selectSingleTextData" resultType="map">
+        SELECT 'drcl' as type,'当日产量' as typename,sum(wei.zweight) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=#{dateTime}
+        union
+        SELECT 'drxl' as type,'当日效率' as typename, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000,2) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=#{dateTime}
+        UNION
+        SELECT 'ljxl' as type,'本月累计效率' as typename, ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000/count(wei.zweight),2) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and DATE_FORMAT(wei.runtime,'%Y-%m')=DATE_FORMAT(#{dateTime},'%Y-%m')
+        UNION
+        select
+        'ljdh' as type,'本月累计电耗' as typename,
+        ROUND(2980*(select info.averagev from ecc_base_info info where info.runtime=#{dateTime} and info.potno=#{potNo})/(SELECT ROUND((sum(wei.zweight)/0.3355/405.5/24)*100000,2) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=#{dateTime}),2) as val
+        from dual
+        UNION
+        select 'pjdy' as type,'本月平均电压' as typename,info.averagev as val from ecc_base_info info where info.runtime=#{dateTime} and info.potno=#{potNo}
+        UNION
+        SELECT
+        'zcll' as type,'预测在产铝量' as typename,
+        ROUND(((select REPLACE(w.efficiency,'%','') from ecc_warehouse w where w.potno=#{potNo})/100000*0.3355*405.5*24)-(IFNULL((SELECT sum(wei.zweight) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=#{dateTime}),0))+(select wei.forecast from ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=date_format(str_to_date(#{dateTime},'%Y-%m-%d')-1,'%Y-%m-%d')),2)  as val
+        from dual
+    </select>
+
+    <select id="selectPotnoDays" resultType="string">
+        SELECT TIMESTAMPDIFF(HOUR,infos.stopage,infos.potage) as 'hours' from ecc_base_info infos where infos.potno=#{potNo} AND (infos.stopage BETWEEN &apos;${startTime}&apos; and &apos;${endTime}&apos; or infos.potage BETWEEN &apos;${startTime}&apos; and &apos;${endTime}&apos; ) ORDER BY infos.createtime desc LIMIT 0,1;
+    </select>
+<!--预测产铝量-->
+    <select id="selectPotnoForecast" resultType="string">
+       SELECT ROUND(((select REPLACE(w.efficiency,'%','') from ecc_warehouse w where w.potno=#{potNo})/100000*0.3355*405.5*24)-(IFNULL((SELECT sum(wei.zweight) as val FROM ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=#{dateTime}),0))+(IFNULL((select wei.forecast from ecc_mes_potnoweight wei where wei.potno=#{potNo} and wei.runtime=date_format(str_to_date(#{dateTime},'%Y-%m-%d')-1,'%Y-%m-%d')),(select w.twovalue from ecc_warehouse w where w.potno=#{potNo}))),2) as val from dual
+    </select>
+    <select id="procPotnoStatus" resultType="string">
+        call P_potnoStatus(#{potNo},#{dateTime})
+    </select>
+    <!--单槽氟化铝料量添加设置 -->
+    <select id="selectSingleAIF3TextData" resultType="map">
+        select
+        case when (c_fzb-q_fzb &lt; 0.02 and c_fzb-q_fzb  &gt; -0.02) then '平行' when (c_fzb-q_fzb &gt;= 0.02) then '上行' when (c_fzb-q_fzb &lt;= -0.02) then '下行' end as 'fzb_qs',
+        case when (c_djwd-q_djwd &lt; 3 and c_djwd-q_djwd  &gt; -3) then '平行' when (c_djwd-q_djwd  &gt;= 3) then '上行' when (c_djwd-q_djwd &lt;= -3) then '下行' end as 'djwd_qs',
+        s1.c_value,
+        s1.c_fzb,
+        s1.c_djwd,
+        s1.q_fzb,
+        s1.q_djwd,
+        s1.qjxh,
+        s1.f_value,
+        s1.f_mark
+        from (
+        select info.obj1 as 'c_value',
+        (select t.fzb from ecc_base_info t where t.potno=#{potNo} ORDER BY t.id desc LIMIT 0,1) as 'c_fzb',
+        (select t.djwd from ecc_base_info t where t.potno=#{potNo} ORDER BY t.id desc LIMIT 0,1) as 'c_djwd',
+        (select t.fzb from ecc_base_info t where t.potno=#{potNo} ORDER BY t.id desc LIMIT 1,1) as 'q_fzb',
+        (select t.djwd from ecc_base_info t where t.potno=#{potNo} ORDER BY t.id desc LIMIT 1,1) as 'q_djwd',
+        ((select sum(t.fhlcnt) from ecc_base_info t where t.potno=#{potNo} and t.runtime BETWEEN #{startTime} and #{endTime})/(DATEDIFF(#{endTime},#{startTime})+1)) as 'qjxh',
+        (info.obj1+ifnull((select result.lvout from ecc_potno_status statu,ecc_potno_result result
+        where result.result='A' and statu.potno=info.potno and statu.runtime=info.runtime
+        and statu.f_fzb = ( case when (result.fzb is null or result.fzb = '') then statu.f_fzb else result.fzb end )
+        and statu.f_djwd = ( case when (result.djwd is null or result.djwd = '') then statu.f_djwd else result.djwd end )
+        and statu.f_fzbBHL = ( case when (result.dypl is null or result.dypl = '') then statu.f_fzbBHL else result.dypl end )
+        and statu.f_zf = ( case when (result.zf is null or result.zf = '') then statu.f_zf else result.zf end ) LIMIT 0,1),0)) as 'f_value',
+        (select result.mark from ecc_potno_status statu,ecc_potno_result result
+        where result.result='A' and statu.potno=info.potno and statu.runtime=info.runtime
+        and statu.f_fzb = ( case when (result.fzb is null or result.fzb = '') then statu.f_fzb else result.fzb end )
+        and statu.f_djwd = ( case when (result.djwd is null or result.djwd = '') then statu.f_djwd else result.djwd end )
+        and statu.f_fzbBHL = ( case when (result.dypl is null or result.dypl = '') then statu.f_fzbBHL else result.dypl end )
+        and statu.f_zf = ( case when (result.zf is null or result.zf = '') then statu.f_zf else result.zf end ) LIMIT 0,1) as 'f_mark'
+        from ecc_base_info info where info.runtime =DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),'%Y-%m-%d') and info.potno=#{potNo}) s1
+    </select>
+<select id="selectAIF3top3" resultType="map">
+    select base.runtime,base.potno,base.djwd,base.fzb,base.fhlcnt,result.result from ecc_base_info base,ecc_result_info result where result.runtime=base.runtime and result.potno=base.potno and  base.potno=#{potNo} ORDER BY base.runtime desc LIMIT 0,3
+</select>
+</mapper>
